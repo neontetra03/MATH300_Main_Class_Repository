@@ -626,6 +626,42 @@ secant, $x_0 = 1$, $x_1 = 2$ & 5 & \cbox{green!15}{7} \\
 \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{The secant method in Python}
+\begin{columns}[T]
+\begin{column}{0.56\textwidth}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+def secant(f, x0, x1, tol=1e-10, maxit=50):
+    f0, f1 = f(x0), f(x1)
+    for n in range(maxit):
+        if f1 == f0:
+            raise ZeroDivisionError("f1 = f0")
+        dx = f1*(x1 - x0)/(f1 - f0) # secant step
+        x0, f0 = x1, f1    # shift
+        x1 = x1 - dx
+        f1 = f(x1)         # 1 evaluation
+        if abs(dx) < tol:  # step-size test
+            return x1
+    raise RuntimeError("no convergence")
+\end{lstlisting}
+\vspace{0.05cm}
+\scriptsize Given to you in the notebook (Activity, Problem 2), with the list \texttt{hist} of iterates added.
+\end{column}
+\begin{column}{0.41\textwidth}
+\begin{block}{Same skeleton as \texttt{newton}}
+\footnotesize Only the step changes: $f'(x_1)$ is replaced by the slope $\frac{f_1 - f_0}{x_1 - x_0}$. Same step-size test, same \texttt{raise} at \texttt{maxit}.
+\end{block}
+\vspace{0.05cm}
+\begin{block}{Order matters}
+\footnotesize Compute \texttt{dx} with the \textbf{old} points, then shift, then update \texttt{x1}. $f(x_0)$ is kept in \texttt{f0}, never recomputed: \textbf{1 evaluation} per step.
+\end{block}
+\vspace{0.05cm}
+\begin{alertblock}{A small step is not a root}
+\scriptsize $x^{10}-1$ from $x_0 = 0$, $x_1 = 1.3$: secant stops at $x \approx 0.18$, where $|f(x)| \approx 1$. Check the residual $|f(x)|$ too.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
 % ============================================================
 \section{Stopping and cost}
 % ============================================================
