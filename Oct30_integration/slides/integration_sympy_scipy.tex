@@ -67,7 +67,7 @@
 \pgfmathdeclarefunction{gc}{1}{\pgfmathparse{0.55+0.3*sin(deg(#1))+1.1*exp(-4*(#1-2.6)^2)}}
 \pgfplotsset{
   rule2/.style={
-    width=5.4cm, height=4.2cm, axis lines=middle, xmin=0, xmax=4.3, ymin=0, ymax=1.95,
+    width=5.4cm, height=3.6cm, axis lines=middle, xmin=0, xmax=4.3, ymin=0, ymax=1.95,
     xtick=\empty, ytick=\empty, thick, clip=false,
     title style={font=\small}
   }
@@ -121,46 +121,71 @@ Add up $f$ at sample points.\\[2pt]
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}{Numerical integration: three rules}
+\begin{frame}{Why ``quadrature''?}
+\centering
+In numerical methods, \textbf{integration} is called \textbf{quadrature}.
+
+\vspace{1.2em}
+\begin{tikzpicture}[scale=1.0]
+\fill[gr!15] (0,0) circle (1);
+\draw[gr!70!black, very thick] (0,0) circle (1);
+\draw[thin] (0,0) -- node[above, font=\footnotesize] {$r$} (1,0);
+\fill (0,0) circle (1pt);
+\node[font=\Large] at (1.65,0) {$=$};
+\begin{scope}[shift={(2.3,-0.886)}]
+\fill[accent!15] (0,0) rectangle (1.772,1.772);
+\draw[accent, very thick] (0,0) rectangle (1.772,1.772);
+\node[right, font=\footnotesize] at (1.772,0.886) {$\sqrt{\pi}\,r$};
+\end{scope}
+\node[font=\footnotesize] at (0,-1.3) {area $\pi r^2$};
+\node[font=\footnotesize] at (3.186,-1.3) {area $\pi r^2$};
+\end{tikzpicture}
+
+\vspace{0.8em}
+\textbf{Quadrature} (ancient geometry): find an area by constructing a \textbf{square} of equal area.
+
+\vspace{1.2em}
+\cbox{accent!12}{\text{Numerical quadrature: } \int_a^b f(x)\,dx \approx \textstyle\sum_i w_i\, f(x_i)}
+\end{frame}
+
+% ------------------------------------------------------------
+\begin{frame}{Riemann sums: rectangles}
 \centering
 \begin{tikzpicture}
-% trapezoid
-\begin{axis}[rule, title={Trapezoidal rule}, name=T]
-\addplot[draw=gr, very thick, fill=gr!15, domain=0.6:3.6, samples=2]
-  {fc(0.6) + (fc(3.6)-fc(0.6))/3*(x-0.6)} \closedcycle;
+\begin{axis}[rule, title={Left Riemann sum}, name=L]
+\draw[gr!70!black, fill=gr!15] (axis cs:0.60,0) rectangle (axis cs:1.10,1.1602);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.10,0) rectangle (axis cs:1.60,1.5557);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.60,0) rectangle (axis cs:2.10,1.7723);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.10,0) rectangle (axis cs:2.60,1.7714);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.60,0) rectangle (axis cs:3.10,1.5532);
+\draw[gr!70!black, fill=gr!15] (axis cs:3.10,0) rectangle (axis cs:3.60,1.1565);
 \addplot[black, domain=0.15:4.1] {fc(x)};
-\addplot[only marks, mark=*, mark size=2pt] coordinates {(0.6,{fc(0.6)}) (3.6,{fc(3.6)})};
+\addplot[only marks, mark=*, mark size=1.6pt, hl] coordinates {(0.60,1.1602) (1.10,1.5557) (1.60,1.7723) (2.10,1.7714) (2.60,1.5532) (3.10,1.1565)};
 \node[below] at (axis cs:0.6,0) {\footnotesize $a$};
 \node[below] at (axis cs:3.6,0) {\footnotesize $b$};
 \end{axis}
-% simpson
-\begin{axis}[rule, title={Simpson's rule}, at={(T.east)}, anchor=west, xshift=0.6cm, name=S]
-\addplot[draw=gr, very thick, fill=gr!15, domain=0.6:3.6]
-  {fc(0.6)*(x-2.1)*(x-3.6)/((0.6-2.1)*(0.6-3.6))
- + fc(2.1)*(x-0.6)*(x-3.6)/((2.1-0.6)*(2.1-3.6))
- + fc(3.6)*(x-0.6)*(x-2.1)/((3.6-0.6)*(3.6-2.1))} \closedcycle;
+\begin{axis}[rule, title={Right Riemann sum}, at={(L.east)}, anchor=west, xshift=0.6cm, name=R]
+\draw[gr!70!black, fill=gr!15] (axis cs:0.60,0) rectangle (axis cs:1.10,1.5557);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.10,0) rectangle (axis cs:1.60,1.7723);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.60,0) rectangle (axis cs:2.10,1.7714);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.10,0) rectangle (axis cs:2.60,1.5532);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.60,0) rectangle (axis cs:3.10,1.1565);
+\draw[gr!70!black, fill=gr!15] (axis cs:3.10,0) rectangle (axis cs:3.60,0.6519);
 \addplot[black, domain=0.15:4.1] {fc(x)};
-\draw[dashed, thin] (axis cs:2.1,0) -- (axis cs:2.1,{fc(2.1)});
-\addplot[only marks, mark=*, mark size=2pt] coordinates {(0.6,{fc(0.6)}) (2.1,{fc(2.1)}) (3.6,{fc(3.6)})};
+\addplot[only marks, mark=*, mark size=1.6pt, hl] coordinates {(1.10,1.5557) (1.60,1.7723) (2.10,1.7714) (2.60,1.5532) (3.10,1.1565) (3.60,0.6519)};
 \node[below] at (axis cs:0.6,0) {\footnotesize $a$};
-\node[below] at (axis cs:2.1,0) {\footnotesize $x_1$};
 \node[below] at (axis cs:3.6,0) {\footnotesize $b$};
 \end{axis}
-% gauss
-\begin{axis}[rule, title={Gauss quadrature}, at={(S.east)}, anchor=west, xshift=0.6cm]
-% cubic through the curve: 2-point Gauss is exact for cubics, so this area = (b-a)/2 (f(x1)+f(x2))
-\addplot[draw=gr, very thick, fill=gr!15, domain=0.6:3.6]
-  {fc(0.6)*(x-1.23397)*(x-2.96603)*(x-3.6)/((0.6-1.23397)*(0.6-2.96603)*(0.6-3.6))
- + fc(1.23397)*(x-0.6)*(x-2.96603)*(x-3.6)/((1.23397-0.6)*(1.23397-2.96603)*(1.23397-3.6))
- + fc(2.96603)*(x-0.6)*(x-1.23397)*(x-3.6)/((2.96603-0.6)*(2.96603-1.23397)*(2.96603-3.6))
- + fc(3.6)*(x-0.6)*(x-1.23397)*(x-2.96603)/((3.6-0.6)*(3.6-1.23397)*(3.6-2.96603))} \closedcycle;
+\begin{axis}[rule, title={Midpoint rule}, at={(R.east)}, anchor=west, xshift=0.6cm]
+\draw[gr!70!black, fill=gr!15] (axis cs:0.60,0) rectangle (axis cs:1.10,1.3766);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.10,0) rectangle (axis cs:1.60,1.6897);
+\draw[gr!70!black, fill=gr!15] (axis cs:1.60,0) rectangle (axis cs:2.10,1.8000);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.10,0) rectangle (axis cs:2.60,1.6879);
+\draw[gr!70!black, fill=gr!15] (axis cs:2.60,0) rectangle (axis cs:3.10,1.3734);
+\draw[gr!70!black, fill=gr!15] (axis cs:3.10,0) rectangle (axis cs:3.60,0.9123);
 \addplot[black, domain=0.15:4.1] {fc(x)};
-\draw[dashed, thin] (axis cs:1.23397,0) -- (axis cs:1.23397,{fc(1.23397)});
-\draw[dashed, thin] (axis cs:2.96603,0) -- (axis cs:2.96603,{fc(2.96603)});
-\addplot[only marks, mark=*, mark size=2pt] coordinates {(1.23397,{fc(1.23397)}) (2.96603,{fc(2.96603)})};
+\addplot[only marks, mark=*, mark size=1.6pt, hl] coordinates {(0.85,1.3766) (1.35,1.6897) (1.85,1.8000) (2.35,1.6879) (2.85,1.3734) (3.35,0.9123)};
 \node[below] at (axis cs:0.6,0) {\footnotesize $a$};
-\node[below] at (axis cs:1.23397,0) {\footnotesize $x_1$};
-\node[below] at (axis cs:2.96603,0) {\footnotesize $x_2$};
 \node[below] at (axis cs:3.6,0) {\footnotesize $b$};
 \end{axis}
 \end{tikzpicture}
@@ -169,41 +194,45 @@ Add up $f$ at sample points.\\[2pt]
 \footnotesize
 \begin{columns}[T]
 \begin{column}{0.31\textwidth}\centering
-straight line through the ends
+height from the \textbf{left} end\\[3pt]
+$h\displaystyle\sum_{i=0}^{n-1} f(x_i)$
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-parabola through 3 points
+height from the \textbf{right} end\\[3pt]
+$h\displaystyle\sum_{i=1}^{n} f(x_i)$
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-best points $x_i$ and weights $w_i$\\
-\scriptsize $x_i$: roots of Legendre $P_n$\\
-($n=2$: $\pm 1/\sqrt{3}$ on $[-1,1]$)
+height from the \textbf{middle}\\[3pt]
+$h\displaystyle\sum_{i=0}^{n-1} f\!\left(x_i + \tfrac{h}{2}\right)$
 \end{column}
 \end{columns}
 
 \vspace{0.6em}
 \begin{columns}[T]
 \begin{column}{0.31\textwidth}\centering
-$E \approx -\dfrac{(b-a)\,h^2}{12}\, f''(\xi)$
+$E \approx \dfrac{(b-a)\,h}{2}\, f'(\xi)$
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-$E \approx -\dfrac{(b-a)\,h^4}{180}\, f^{(4)}(\xi)$
+$E \approx -\dfrac{(b-a)\,h}{2}\, f'(\xi)$
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-$E = \dfrac{(b-a)^5}{4320}\, f^{(4)}(\xi)$ \ \ ($n=2$)
+$E \approx \dfrac{(b-a)\,h^2}{24}\, f''(\xi)$
 \end{column}
 \end{columns}
 
 \vspace{0.6em}
 \centering
-\cbox{accent!12}{\text{equal spacing } h = \tfrac{b-a}{n} \quad\text{vs.}\quad \text{Gauss chooses where to sample}}
+\cbox{accent!12}{n \text{ intervals of width } h = \tfrac{b-a}{n}: \quad \text{left/right} \sim h, \quad \text{midpoint} \sim h^2}
 \end{frame}
 
 % ------------------------------------------------------------
-\begin{frame}{Many points: split $[a,b]$ into pieces}
+\begin{frame}{Numerical quadrature: three rules}
 \centering
+Split $[a,b]$ into pieces, fit a simple polynomial on each, and integrate it exactly.
+
+\vspace{0.3em}
 \begin{tikzpicture}
-\begin{axis}[rule2, title={Trapezoid, $n=8$}, name=T2]
+\begin{axis}[rule2, title={Trapezoidal, $n=8$}, name=T2]
 \addplot[draw=gr, very thick, fill=gr!15] coordinates {(0.4000,0.6668) (0.8250,0.7704) (1.2500,0.8354) (1.6750,0.8843) (2.1000,1.2136) (2.5250,1.7990) (2.9500,1.2810) (3.3750,0.5802) (3.8000,0.3699)} \closedcycle;
 \draw[thin, gr!70!black] (axis cs:0.8250,0) -- (axis cs:0.8250,0.7704);
 \draw[thin, gr!70!black] (axis cs:1.2500,0) -- (axis cs:1.2500,0.8354);
@@ -234,7 +263,7 @@ $E = \dfrac{(b-a)^5}{4320}\, f^{(4)}(\xi)$ \ \ ($n=2$)
 \node[below] at (axis cs:0.4,0) {\footnotesize $a$};
 \node[below] at (axis cs:3.8,0) {\footnotesize $b$};
 \end{axis}
-\begin{axis}[rule2, title={\texttt{quad}: adaptive Gauss}, at={(S2.east)}, anchor=west, xshift=0.5cm]
+\begin{axis}[rule2, title={Gauss (\texttt{quad})}, at={(S2.east)}, anchor=west, xshift=0.5cm]
 \addplot[draw=gr, very thick, fill=gr!15, domain=0.4000:0.8250, samples=30] {gc(0.4000)*(x-0.4898)*(x-0.7352)*(x-0.8250)/((0.4000-0.4898)*(0.4000-0.7352)*(0.4000-0.8250))+gc(0.4898)*(x-0.4000)*(x-0.7352)*(x-0.8250)/((0.4898-0.4000)*(0.4898-0.7352)*(0.4898-0.8250))+gc(0.7352)*(x-0.4000)*(x-0.4898)*(x-0.8250)/((0.7352-0.4000)*(0.7352-0.4898)*(0.7352-0.8250))+gc(0.8250)*(x-0.4000)*(x-0.4898)*(x-0.7352)/((0.8250-0.4000)*(0.8250-0.4898)*(0.8250-0.7352))} \closedcycle;
 \addplot[draw=gr, very thick, fill=gr!15, domain=0.8250:1.2500, samples=30] {gc(0.8250)*(x-0.9148)*(x-1.1602)*(x-1.2500)/((0.8250-0.9148)*(0.8250-1.1602)*(0.8250-1.2500))+gc(0.9148)*(x-0.8250)*(x-1.1602)*(x-1.2500)/((0.9148-0.8250)*(0.9148-1.1602)*(0.9148-1.2500))+gc(1.1602)*(x-0.8250)*(x-0.9148)*(x-1.2500)/((1.1602-0.8250)*(1.1602-0.9148)*(1.1602-1.2500))+gc(1.2500)*(x-0.8250)*(x-0.9148)*(x-1.1602)/((1.2500-0.8250)*(1.2500-0.9148)*(1.2500-1.1602))} \closedcycle;
 \addplot[draw=gr, very thick, fill=gr!15, domain=1.2500:1.6750, samples=30] {gc(1.2500)*(x-1.3398)*(x-1.5852)*(x-1.6750)/((1.2500-1.3398)*(1.2500-1.5852)*(1.2500-1.6750))+gc(1.3398)*(x-1.2500)*(x-1.5852)*(x-1.6750)/((1.3398-1.2500)*(1.3398-1.5852)*(1.3398-1.6750))+gc(1.5852)*(x-1.2500)*(x-1.3398)*(x-1.6750)/((1.5852-1.2500)*(1.5852-1.3398)*(1.5852-1.6750))+gc(1.6750)*(x-1.2500)*(x-1.3398)*(x-1.5852)/((1.6750-1.2500)*(1.6750-1.3398)*(1.6750-1.5852))} \closedcycle;
@@ -261,32 +290,28 @@ $E = \dfrac{(b-a)^5}{4320}\, f^{(4)}(\xi)$ \ \ ($n=2$)
 \end{axis}
 \end{tikzpicture}
 
-\vspace{0.3em}
+\vspace{0.4em}
 \footnotesize
 \begin{columns}[T]
 \begin{column}{0.31\textwidth}\centering
-a line on each piece
+a line on each piece\\[3pt]
+$\dfrac{h}{2}\big(f_0 + 2f_1 + \dots + f_n\big)$\\[3pt]
+$E \sim h^2$
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-a parabola on each pair\\ so $n$ must be \textbf{even}
+a parabola on each pair\\[3pt]
+$\dfrac{h}{3}\big(f_0 + 4f_1 + 2f_2 + \dots + f_n\big)$\\[3pt]
+$E \sim h^4$ \ ($n$ even)
 \end{column}
 \begin{column}{0.31\textwidth}\centering
-finer pieces near the peak
+best points $x_i$ and weights $w_i$\\[3pt]
+$\displaystyle\sum_{i=1}^{n} w_i\, f(x_i)$\\[3pt]
+exact for degree $\le 2n-1$
 \end{column}
 \end{columns}
 
-\vspace{0.6em}
-\begin{columns}[c]
-\begin{column}{0.31\textwidth}\centering
-$\dfrac{h}{2}\big(f_0 + 2f_1 + \dots + 2f_{n-1} + f_n\big)$
-\end{column}
-\begin{column}{0.31\textwidth}\centering
-$\dfrac{h}{3}\big(f_0 + 4f_1 + 2f_2 + \dots + f_n\big)$
-\end{column}
-\begin{column}{0.31\textwidth}\centering
-$\displaystyle\sum_{i=1}^{n} w_i\, f(x_i)$
-\end{column}
-\end{columns}
+\vspace{0.7em}
+\cbox{accent!12}{\text{Trapezoid, Simpson: } n = \#\text{intervals},\ h = \tfrac{b-a}{n} \qquad \text{Gauss: } n = \#\text{evaluation points}}
 \end{frame}
 
 \end{document}
